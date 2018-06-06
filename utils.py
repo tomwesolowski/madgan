@@ -8,6 +8,13 @@ from tensorflow.python.client import device_lib
 matplotlib.use('Agg')  # Force not to use $DISPLAY
 import matplotlib.pyplot as plt
 
+
+class SmartDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(SmartDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
+
+
 def get_available_devices():
     local_device_protos = device_lib.list_local_devices()
     return [x.name for x in local_device_protos]

@@ -12,7 +12,7 @@ to add some randomness into exact values selection process.
 '''
 params_defs = ParamsDict(
     batch_size=HParamSelect([128]),
-    noise_size=100,
+    noise_size=64,
     noise_scale=0.1,
     pretrain_steps=10**2,
     steps=10**5,
@@ -20,6 +20,7 @@ params_defs = ParamsDict(
     dis_lr=0.0003,
     dis_filters=HParamSelect([96]),
     dis_filters_size=HParamSelect([5]),
+    num_generators=4,
     gen_lr=0.0001,
     gen_filters=HParamSelect([96]),
     gen_filters_size=HParamSelect([5]),
@@ -37,7 +38,10 @@ params_defs = ParamsDict(
     draw_steps=4000,
     debug=False,
     # To run on CIFAR-10, please use Cifar10Dataset
-    dataset=lambda: datasets.MnistDataset(),
+    dataset=lambda: datasets.GMDataset(),
+    gaussian_mis=[10, 20, 60, 80, 110],
+    gaussian_sigmas=[3, 3, 2, 2, 1],
+    gaussian_size=2000,
     model_path='',
     mode='train',
     nb_generated=4000,

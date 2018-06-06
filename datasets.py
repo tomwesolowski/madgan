@@ -1,14 +1,29 @@
 import numpy as np
 import utils
 
+from functools import partial
 from tensorflow.examples.tutorials.mnist import input_data
-
+from tqdm import trange
 
 class Dataset(object):
     def __init__(self, path, name):
         super(Dataset, self).__init__()
         self.name = name
         self.path = path
+
+
+class GMDataset(Dataset):
+    def __init__(self, path='.', name='gaussian_mixture'):
+        super(GMDataset, self).__init__(path, name)
+
+    def get(self, params):
+        num_distr = len(params.gaussian_mis)
+        xs = []
+        print('Generating data...')
+        for _ in trange(params.gaussian_size):
+            i = np.random.choice(range(num_distr))
+            xs.append(np.random.normal(loc=params.gaussian_mis[i], scale=params.gaussian_sigmas[i]))
+        return np.array(xs, dtype=np.float32), None
 
 
 class MnistDataset(Dataset):
