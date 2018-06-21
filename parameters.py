@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 import tensorflow as tf
 import types
@@ -7,18 +8,23 @@ class ParamsDict(dict):
     def __init__(self, *args, **kwargs):
         super(ParamsDict, self).__init__(*args, **kwargs)
         self.__dict__ = self
+        self.parser = argparse.ArgumentParser()
 
     def define_flags(self):
         for k, v in self.items():
             param = v.get() if isinstance(v, HParam) else v
             if isinstance(param, bool):
                 tf.app.flags.DEFINE_bool(k, None, k)
+                self.parser.add_argument("--%s" % k, type=bool, default=None)
             elif isinstance(param, float):
                 tf.app.flags.DEFINE_float(k, None, k)
+                self.parser.add_argument("--%s" % k, type=float, default=None)
             elif isinstance(param, int):
                 tf.app.flags.DEFINE_integer(k, None, k)
+                self.parser.add_argument("--%s" % k, type=int, default=None)
             elif isinstance(param, str):
                 tf.app.flags.DEFINE_string(k, None, k)
+                self.parser.add_argument("--%s" % k, type=str, default=None)
             else:
                 print('Could not create a flag for: %s with type: %s' % (k, type(v)))
 
@@ -34,8 +40,11 @@ class ParamsDict(dict):
         return params_values
 
     def describe(self):
-        for k, v in self.items():
+        for k, v in sorted(zip(self.keys(), self.values()), key=lambda k: k[0]):
             print(k, '=', v)
+
+    def parse_args(self):
+        return self.parser.parse_args()
 
 
 class HParam(object):

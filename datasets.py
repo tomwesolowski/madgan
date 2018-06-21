@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import utils
 
 from functools import partial
@@ -9,7 +10,7 @@ class Dataset(object):
     def __init__(self, path, name):
         super(Dataset, self).__init__()
         self.name = name
-        self.path = path
+        self.path = os.path.expanduser(path)
 
 
 class GMDataset(Dataset):
@@ -34,14 +35,22 @@ class MnistDataset(Dataset):
         self.labels_size = 10
         self.labels_names = [str(i) for i in range(10)]
 
-    def get(self, params):
+    def get(self, params, train_test='train'):
         mnist = input_data.read_data_sets(self.path, one_hot=True)
-        images = mnist.train.images.astype(np.float32) * 2 - 1
-        labels = mnist.train.labels.astype(np.float32)
+        dataset = mnist.train if train_test == 'train' else mnist.test
+        images = dataset.images.astype(np.float32) * 2 - 1
+        labels = dataset.labels.astype(np.float32)
         images = np.reshape(images, [-1, 28, 28, 1])
         # Crop 24x24 sub-image.
         images = images[:, 2:26, 2:26, :]
         params.labels_names = self.labels_names
+
+
+        # TODO(tomwesolowski): Remove this hack (!)
+        if train_test == 'test':
+            images = np.concatenate(np.repeat(np.expand_dims(images, 0), 6, axis=0))[:55000]
+            labels = np.concatenate(np.repeat(np.expand_dims(labels, 0), 6, axis=0))[:55000]
+
         return images, labels
 
 
